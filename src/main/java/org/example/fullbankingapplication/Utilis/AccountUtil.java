@@ -8,6 +8,16 @@ public class AccountUtil {
      public static final String ACCOUNT_EXISTS_MESSAGE = "User Already has an account";
      public static final String ACCOUNT_CREATION_CODE = "002";
      public static final String ACCOUNT_CREATION_MESSAGE = "User Saved successfully" ;
+     public static final String ACCOUNT_NOT_EXISTS_CODE = "003";
+     public static final String ACCOUNT_NOT_EXISTS_MESSAGE = "Account with this provided Number Not Exist";
+     public static final String ACCOUNT_FOUND_CODE = "004";
+     public static final String ACCOUNT_FOUND_MESSAGE = "Succes Account Number Found";
+     public static final String BALANCE_ADDED_CODE = "005";
+     public static final String BALANCE_ADDED__MESSAGE = "Amount added successfully";
+     public static final String BALANCE_INSUFISSANT_CODE = "005";
+     public static final String BALANCE_INSUFISSANT_MESSAGE = "Insufissant  Balance ";
+
+
 
     public static String  generateAccountNumber(){
       int year = Year.now().getValue();
