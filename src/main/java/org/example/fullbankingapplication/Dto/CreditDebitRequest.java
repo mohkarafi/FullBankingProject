@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class EmailDetails {
-    private String ReciverEmail;
-    private String EmailBody;
-    private String EmailSubject;
-    private String attachment;
+public class CreditDebitRequest {
+    private String accountNumber;
+    private BigDecimal amount;
 }

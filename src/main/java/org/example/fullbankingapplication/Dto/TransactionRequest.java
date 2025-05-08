@@ -10,7 +10,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreditDebitrequest {
+public class TransactionRequest {
     private String accountNumber;
+    private String transactionType;
+    private String transactionStatus;
     private BigDecimal amount;
 }
