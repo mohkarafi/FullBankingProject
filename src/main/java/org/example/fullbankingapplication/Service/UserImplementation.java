@@ -1,31 +1,28 @@
 package org.example.fullbankingapplication.Service;
 
+import lombok.AllArgsConstructor;
 import org.example.fullbankingapplication.Dto.*;
 import org.example.fullbankingapplication.Entity.User;
 import org.example.fullbankingapplication.Repository.UserRepository;
-import org.example.fullbankingapplication.Service.Implt.EmailService;
+import org.example.fullbankingapplication.Service.Implt.TransactionService;
 import org.example.fullbankingapplication.Service.Implt.UserService;
 import org.example.fullbankingapplication.Utilis.AccountUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+
 @Service
-public class UserImplementation implements  UserService {
+@AllArgsConstructor
+public class UserImplementation implements UserService {
 
     private UserRepository userRepository;
-
-     @Autowired
-     private EmailService emailService;
-
-    @Autowired
-    public UserImplementation(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private TransactionService transactionService;
+    private EmailServiceImplt emailService;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
-        if(userRepository.existsByEmail(userRequest.getEmail())){
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
             BankResponse bankResponse = BankResponse.builder()
                     .ResponseCode(AccountUtil.ACCOUNT_EXISTS_CODE)
                     .ResponseMessage(AccountUtil.ACCOUNT_EXISTS_MESSAGE)
@@ -52,12 +49,11 @@ public class UserImplementation implements  UserService {
                 + "If you have any questions or need assistance, feel free to contact our support team.\n\n"
                 + "Best regards,\nThe Team";
         EmailDetails emailDetails = EmailDetails.builder()
-                .RecpentEmail(savedUser.getEmail())
+                .ReciverEmail(savedUser.getEmail())
                 .EmailSubject("User Created")
                 .EmailBody(welcomeMessage)
                 .build();
-        emailService.SendEmail(emailDetails);
-
+        emailService.sendEmail(emailDetails);
 
 
         BankResponse responseCreate = BankResponse.builder()
@@ -77,8 +73,8 @@ public class UserImplementation implements  UserService {
     // Methode pour aficher la balnce de compte
     @Override
     public BankResponse BalanceEnquiry(CheckBalance checkBalance) {
-        boolean ifAccountExists = userRepository.existsByEmail(checkBalance.getAccountNumber());
-        if(!ifAccountExists){
+        boolean ifAccountExists = userRepository.existsByAccountNumber(checkBalance.getAccountNumber());
+        if (!ifAccountExists) {
             BankResponse bankResponse = BankResponse.builder()
                     .ResponseCode(AccountUtil.ACCOUNT_NOT_EXISTS_CODE)
                     .ResponseMessage(AccountUtil.ACCOUNT_NOT_EXISTS_MESSAGE)
@@ -95,25 +91,26 @@ public class UserImplementation implements  UserService {
                         .AccountName(FoundAccount.getFirstName() + " " + FoundAccount.getLastName())
                         .AccountNumber(FoundAccount.getAccountNumber())
                         .build())
-                .build() ;
-       return reponse;
+                .build();
+        return reponse;
     }
 
 
     @Override
     public String getNameInfo(CheckBalance checkBalance) {
         boolean ifAccountExists = userRepository.existsByAccountNumber(checkBalance.getAccountNumber());
-        if(!ifAccountExists){
-           return AccountUtil.ACCOUNT_NOT_EXISTS_CODE;
+        if (!ifAccountExists) {
+            return AccountUtil.ACCOUNT_NOT_EXISTS_CODE;
         }
         User FindUSer = userRepository.findByAccountNumber(checkBalance.getAccountNumber());
         return (FindUSer.getFirstName() + " " + FindUSer.getLastName());
     }
 
+
     @Override
-    public BankResponse CreditAccount(CreditDebitrequest creditDebitrequest) {
+    public BankResponse CreditAccount(CreditDebitRequest creditDebitrequest) {
         Boolean AccountExist = userRepository.existsByAccountNumber(creditDebitrequest.getAccountNumber());
-        if(!AccountExist){
+        if (!AccountExist) {
             return BankResponse.builder()
                     .ResponseCode(AccountUtil.ACCOUNT_NOT_EXISTS_CODE)
                     .ResponseMessage(AccountUtil.ACCOUNT_NOT_EXISTS_MESSAGE)
@@ -122,6 +119,19 @@ public class UserImplementation implements  UserService {
         }
         User userAccount = userRepository.findByAccountNumber(creditDebitrequest.getAccountNumber());
         userAccount.setBalance(userAccount.getBalance().add(creditDebitrequest.getAmount()));
+        userRepository.save(userAccount);
+
+        // save Transaction
+
+        TransactionRequest transactionDto = TransactionRequest.builder()
+                .transactionType("Credit")
+                .accountNumber(creditDebitrequest.getAccountNumber())
+                .amount(creditDebitrequest.getAmount())
+                .transactionStatus("SUCCES")
+                .build();
+        transactionService.saveTransaction(transactionDto);
+
+
         BankResponse Balnceresponse = BankResponse.builder()
                 .ResponseCode(AccountUtil.BALANCE_ADDED_CODE)
                 .ResponseMessage(AccountUtil.BALANCE_ADDED__MESSAGE)
@@ -135,9 +145,8 @@ public class UserImplementation implements  UserService {
     }
 
 
-
     @Override
-    public BankResponse DebitAccount(CreditDebitrequest creditDebitrequest) {
+    public BankResponse DebitAccount(CreditDebitRequest creditDebitrequest) {
         Boolean ExistAccount = userRepository.existsByAccountNumber(creditDebitrequest.getAccountNumber());
         if (!ExistAccount) {
             return BankResponse.builder()
@@ -151,6 +160,16 @@ public class UserImplementation implements  UserService {
             userAccount.setBalance(userAccount.getBalance().subtract(creditDebitrequest.getAmount()));
             userRepository.save(userAccount);
 
+
+            TransactionRequest transactionDto = TransactionRequest.builder()
+                    .transactionType("Debit")
+                    .accountNumber(creditDebitrequest.getAccountNumber())
+                    .amount(creditDebitrequest.getAmount())
+                    .transactionStatus("SUCCES")
+                    .build();
+            transactionService.saveTransaction(transactionDto);
+
+
             return BankResponse.builder()
                     .ResponseCode(AccountUtil.BALANCE_ADDED_CODE)
                     .ResponseMessage("Operation debit Successful")
@@ -160,7 +179,7 @@ public class UserImplementation implements  UserService {
                             .AccountBalance(userAccount.getBalance())
                             .build())
                     .build();
-        }else{
+        } else {
             return BankResponse.builder().
                     ResponseCode(AccountUtil.BALANCE_INSUFISSANT_CODE)
                     .ResponseMessage(AccountUtil.BALANCE_INSUFISSANT_MESSAGE)
@@ -169,9 +188,75 @@ public class UserImplementation implements  UserService {
 
         }
     }
+
+    @Override
+    public BankResponse TransferAmount(TransferRequest transferRequest) {
+        // boolean CheckDestinaterExistance = userRepository.existsByAccountNumber(transferRequest.getDestinaterAccountNumber());
+        boolean CheckSenderExistance = userRepository.existsByAccountNumber(transferRequest.getSenderAccountNumber());
+
+        if (!(CheckSenderExistance)) {
+            return BankResponse.builder()
+                    .ResponseCode(AccountUtil.ACCOUNT_NOT_EXISTS_CODE)
+                    .ResponseMessage(AccountUtil.ACCOUNT_NOT_EXISTS_MESSAGE)
+                    .accountinfo(null)
+                    .build();
+        }
+
+        User SenderUser = userRepository.findByAccountNumber(transferRequest.getSenderAccountNumber());
+        if (SenderUser.getBalance().compareTo(transferRequest.getAmount()) < 0) {
+            return BankResponse.builder()
+                    .ResponseCode(AccountUtil.BALANCE_INSUFISSANT_CODE)
+                    .ResponseMessage(AccountUtil.BALANCE_INSUFISSANT_MESSAGE)
+                    .accountinfo(null)
+                    .build();
+        } else {
+
+
+            SenderUser.setBalance(SenderUser.getBalance().subtract(transferRequest.getAmount()));
+            userRepository.save(SenderUser);
+            EmailDetails debitAlert = EmailDetails.builder()
+                    .EmailSubject("Debit Operation")
+                    .ReciverEmail(SenderUser.getEmail())
+                    .EmailBody("vous avez effectuer un transfer d'un montant de " + transferRequest.getAmount())
+                    .build();
+            emailService.sendEmail(debitAlert);
+
+
+            User DestinaterUser = userRepository.findByAccountNumber(transferRequest.getDestinaterAccountNumber());
+            DestinaterUser.setBalance(DestinaterUser.getBalance().add(transferRequest.getAmount()));
+            userRepository.save(DestinaterUser);
+            EmailDetails CreditAlert = EmailDetails.builder()
+                    .EmailSubject("Credit Operation")
+                    .ReciverEmail(DestinaterUser.getEmail())
+                    .EmailBody("vous avez recu d'un montant de " + transferRequest.getAmount() +
+                            "lors de " + SenderUser.getAccountNumber() +
+                            " " + SenderUser.getFirstName() + " " + SenderUser.getLastName())
+                    .build();
+            emailService.sendEmail(CreditAlert);
+
+            TransactionRequest transactionDto = TransactionRequest.builder()
+                    .transactionType("Credit")
+                    .accountNumber(transferRequest.getSenderAccountNumber())
+                    .amount(transferRequest.getAmount())
+                    .transactionStatus("SUCCES")
+                    .build();
+            transactionService.saveTransaction(transactionDto);
+
+
+            return BankResponse.builder()
+                    .ResponseCode(AccountUtil.TRANSFER_OPERATION_CODE)
+                    .ResponseMessage(AccountUtil.TRANSFEROPERATION_MESSAGE)
+                    .accountinfo(null)
+                    .build();
+        }
+    }
+
+    @Override
+    public List<User> findAllAccounts() {
+        List<User> users = userRepository.findAll();
+        return users;
+    }
 }
-
-
 
 
 

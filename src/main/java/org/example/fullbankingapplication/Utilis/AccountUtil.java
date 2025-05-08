@@ -16,6 +16,8 @@ public class AccountUtil {
      public static final String BALANCE_ADDED__MESSAGE = "Amount added successfully";
      public static final String BALANCE_INSUFISSANT_CODE = "005";
      public static final String BALANCE_INSUFISSANT_MESSAGE = "Insufissant  Balance ";
+     public static final String TRANSFER_OPERATION_CODE = "006";
+     public static final String TRANSFEROPERATION_MESSAGE = "he transfer operation has been completed successfully.";
 
 
 

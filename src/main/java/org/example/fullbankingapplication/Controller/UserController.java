@@ -1,45 +1,93 @@
 package org.example.fullbankingapplication.Controller;
 
-import org.example.fullbankingapplication.Dto.CheckBalance;
-import org.example.fullbankingapplication.Dto.BankResponse;
-import org.example.fullbankingapplication.Dto.CreditDebitrequest;
-import org.example.fullbankingapplication.Dto.UserRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.fullbankingapplication.Dto.*;
 import org.example.fullbankingapplication.Entity.User;
 import org.example.fullbankingapplication.Repository.UserRepository;
 import org.example.fullbankingapplication.Service.Implt.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("api/user")
+@Tag(name = "User Managment Api")
 public class UserController {
     @Autowired
     private UserService userService;
     private UserRepository userRepository;
+
+    @Operation(
+            summary = "Create new user Account",
+            description = "creating a new user ans assigning an account Id"
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "Http status 201 created"
+    )
+
     @PostMapping
-    public BankResponse CreateUser(@RequestBody UserRequest user){
-        return userService.createAccount( user);
+    public BankResponse CreateUser(@RequestBody UserRequest user) {
+        return userService.createAccount(user);
     }
 
+    @Operation(
+            summary = "Checck Balance",
+            description = "Given an Account Number and Checking the balance SUCCES"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Http status 200 "
+    )
+
     @GetMapping("checkBalance")
-    public BankResponse Checkbalance(@RequestBody CheckBalance checkBalance){
-        return userService.BalanceEnquiry( checkBalance);
+    public BankResponse Checkbalance(@RequestBody CheckBalance checkBalance) {
+        return userService.BalanceEnquiry(checkBalance);
     }
 
     @GetMapping("getName")
-    public String getNameInfo(@RequestBody CheckBalance checkBalance){
+    public String getNameInfo(@RequestBody CheckBalance checkBalance) {
         return userService.getNameInfo(checkBalance);
     }
+
+
+    @Operation(
+            summary = "Credit an Account"
+
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Http status 200 "
+    )
+
     @GetMapping("credit")
-    public BankResponse CreditBalance(@RequestBody CreditDebitrequest creditDebitrequest){
+    public BankResponse CreditBalance(@RequestBody CreditDebitRequest creditDebitrequest) {
         return userService.CreditAccount(creditDebitrequest);
     }
+
+    @Operation(
+            summary = "Dredit an Account"
+
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Http status 200 "
+    )
     @GetMapping("debit")
-    public BankResponse DebitBalance(@RequestBody  CreditDebitrequest creditDebitrequest){
+    public BankResponse DebitBalance(@RequestBody CreditDebitRequest creditDebitrequest) {
         return userService.DebitAccount(creditDebitrequest);
     }
 
+    @PostMapping("transfer")
+    public BankResponse TransferOperation(@RequestBody TransferRequest transferRequest) {
+        return userService.TransferAmount(transferRequest);
+    }
+
+    @GetMapping("Accounts")
+    public List<User> findAllAccounts() {
+        return userService.findAllAccounts();
+    }
 }
