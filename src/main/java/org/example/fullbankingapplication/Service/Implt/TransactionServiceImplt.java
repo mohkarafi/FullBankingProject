@@ -1,16 +1,17 @@
-package org.example.fullbankingapplication.Service;
+package org.example.fullbankingapplication.Service.Implt;
 
-import org.example.fullbankingapplication.Dto.TransactionRequest;
+import org.example.fullbankingapplication.BankAccountDTO.TransactionRequest;
 import org.example.fullbankingapplication.Entity.Transaction;
 import org.example.fullbankingapplication.Repository.TransactionRepository;
-import org.example.fullbankingapplication.Service.Implt.TransactionService;
+import org.example.fullbankingapplication.Service.TransactionService;
+import org.example.fullbankingapplication.enums.TransactionStatus;
 import org.springframework.stereotype.Service;
 
 @Service
 
 public class TransactionServiceImplt implements TransactionService {
 
-    private TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
     public TransactionServiceImplt(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
@@ -20,7 +21,7 @@ public class TransactionServiceImplt implements TransactionService {
     public void saveTransaction(TransactionRequest transactionDto) {
         Transaction transaction = Transaction.builder()
                 .transactionType(transactionDto.getTransactionType())
-                .transactionStatus(transactionDto.getTransactionStatus())
+                .transactionStatus(TransactionStatus.ACTIVATED)
                 .AccountNumber(transactionDto.getAccountNumber())
                 .amount(transactionDto.getAmount())
                 .build();

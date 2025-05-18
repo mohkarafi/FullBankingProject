@@ -1,4 +1,4 @@
-package org.example.fullbankingapplication.Dto;
+package org.example.fullbankingapplication.BankAccountDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

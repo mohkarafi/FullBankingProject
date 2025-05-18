@@ -1,6 +1,6 @@
-package org.example.fullbankingapplication.Service.Implt;
+package org.example.fullbankingapplication.Service;
 
-import org.example.fullbankingapplication.Dto.TransactionRequest;
+import org.example.fullbankingapplication.BankAccountDTO.TransactionRequest;
 import org.springframework.stereotype.Service;
 
 @Service

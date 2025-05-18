@@ -3,14 +3,13 @@ package org.example.fullbankingapplication.Controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.fullbankingapplication.Dto.*;
+import org.example.fullbankingapplication.BankAccountDTO.*;
 import org.example.fullbankingapplication.Entity.User;
 import org.example.fullbankingapplication.Repository.UserRepository;
-import org.example.fullbankingapplication.Service.Implt.UserService;
+import org.example.fullbankingapplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/user")
@@ -30,8 +29,8 @@ public class UserController {
     )
 
     @PostMapping
-    public BankResponse CreateUser(@RequestBody UserRequest user){
-        return userService.createAccount( user);
+    public BankResponse CreateUser(@RequestBody UserRequest user) {
+        return userService.createAccount(user);
     }
 
     @Operation(
@@ -44,11 +43,12 @@ public class UserController {
     )
 
     @GetMapping("checkBalance")
-    public BankResponse Checkbalance(@RequestBody CheckBalance checkBalance){
-        return userService.BalanceEnquiry( checkBalance);
+    public BankResponse Checkbalance(@RequestBody CheckBalance checkBalance) {
+        return userService.BalanceEnquiry(checkBalance);
     }
+
     @GetMapping("getName")
-    public String getNameInfo(@RequestBody CheckBalance checkBalance){
+    public String getNameInfo(@RequestBody CheckBalance checkBalance) {
         return userService.getNameInfo(checkBalance);
     }
 
@@ -63,9 +63,10 @@ public class UserController {
     )
 
     @GetMapping("credit")
-    public BankResponse CreditBalance(@RequestBody CreditDebitRequest creditDebitrequest){
+    public BankResponse CreditBalance(@RequestBody CreditDebitRequest creditDebitrequest) {
         return userService.CreditAccount(creditDebitrequest);
     }
+
     @Operation(
             summary = "Dredit an Account"
 
@@ -75,17 +76,24 @@ public class UserController {
             description = "Http status 200 "
     )
     @GetMapping("debit")
-    public BankResponse DebitBalance(@RequestBody CreditDebitRequest creditDebitrequest){
+    public BankResponse DebitBalance(@RequestBody CreditDebitRequest creditDebitrequest) {
         return userService.DebitAccount(creditDebitrequest);
     }
 
     @PostMapping("transfer")
-    public BankResponse TransferOperation(@RequestBody TransferRequest transferRequest){
+    public BankResponse TransferOperation(@RequestBody TransferRequest transferRequest) {
         return userService.TransferAmount(transferRequest);
     }
 
-    @GetMapping("Accounts")
-    public List<User> findAllAccounts(){
-        return userService.findAllAccounts();
+    @PostMapping("login")
+    public BankResponse login(@RequestBody LoginDto login) {
+        return userService.login(login);
     }
+
+    @GetMapping("Accounts")
+    public Page<User> findAllAccounts(@RequestParam(defaultValue = "O") int page,
+                                      @RequestParam(defaultValue = "4") int size) {
+        return userService.findAllAccounts(page, size);
+    }
+
 }

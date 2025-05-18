@@ -1,4 +1,4 @@
-package org.example.fullbankingapplication.Service;
+package org.example.fullbankingapplication.Service.Implt;
 
 
 import com.itextpdf.text.*;
@@ -6,12 +6,12 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
-import org.example.fullbankingapplication.Dto.EmailDetails;
+import org.example.fullbankingapplication.BankAccountDTO.EmailDetails;
 import org.example.fullbankingapplication.Entity.Transaction;
 import org.example.fullbankingapplication.Entity.User;
 import org.example.fullbankingapplication.Repository.TransactionRepository;
 import org.example.fullbankingapplication.Repository.UserRepository;
-import org.example.fullbankingapplication.Service.Implt.EmailService;
+import org.example.fullbankingapplication.Service.EmailService;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -38,8 +38,7 @@ public class BankStatement {
         LocalDate startDate = LocalDate.parse(StartDate);
         LocalDate endDate = LocalDate.parse(EndDate);
         // filtrer juste les transactions qui ont la meme accountNumber et stratdate et finDate .
-        List<Transaction> transactions = transactionRepository.findAll();
-        transactions.stream()
+        List<Transaction> transactions = transactionRepository.findAll().stream()
                 .filter(transaction -> transaction.getAccountNumber().equals(AccountNumber))
                 .filter(transaction -> !transaction.getCreatedDate().isBefore(startDate) &&
                         !transaction.getCreatedDate().isAfter(endDate)).toList();
@@ -53,7 +52,6 @@ public class BankStatement {
         Document document = new Document(rectangle);
         OutputStream filePdf = new FileOutputStream(File);
         PdfWriter.getInstance(document, filePdf);
-
         document.open();
         // ------------------------------------ Create Titre -----------------------------------
 
@@ -116,8 +114,8 @@ public class BankStatement {
 
         for (Transaction transaction : transactions) {
             TransactionsTable.addCell(new Phrase(String.valueOf(transaction.getTransactionId())));
-            TransactionsTable.addCell(new Phrase(transaction.getTransactionType()));
-            TransactionsTable.addCell(new Phrase(transaction.getTransactionStatus()));
+            TransactionsTable.addCell(new Phrase(String.valueOf(transaction.getTransactionType())));
+            TransactionsTable.addCell(new Phrase(String.valueOf(transaction.getTransactionStatus())));
             TransactionsTable.addCell(new Phrase(String.valueOf(transaction.getAmount())));
             TransactionsTable.addCell(new Phrase(String.valueOf(transaction.getCreatedDate())));
         }

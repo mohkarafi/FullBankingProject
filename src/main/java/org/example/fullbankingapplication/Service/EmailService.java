@@ -1,6 +1,6 @@
-package org.example.fullbankingapplication.Service.Implt;
+package org.example.fullbankingapplication.Service;
 
-import org.example.fullbankingapplication.Dto.EmailDetails;
+import org.example.fullbankingapplication.BankAccountDTO.EmailDetails;
 
 public interface EmailService {
     void sendEmail(EmailDetails emailDetails);
