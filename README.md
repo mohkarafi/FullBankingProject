@@ -5,36 +5,38 @@ accounts, and roles securely and efficiently.
 
 ## Features
 
-User Management
-Register, update, delete, and list users with assigned roles.
+- ✅ **User Management**
+  Register, update, delete, and list users with assigned roles.
 
-Authentication & Authorization
-Secure login system with JWT tokens; role-based access control for users and admins.
+- ✅ **Authentication & Authorization**
+  Secure login system with JWT tokens; role-based access control for users and admins.
 
-Account Management
-Create and manage bank accounts for users.
+- ✅ **Account Management**
+  Create and manage bank accounts for users.
 
-Transaction Processing
-Record deposits, withdrawals, and transfers between accounts.
+- ✅ **Transaction Processing**
+  Record deposits, withdrawals, and transfers between accounts.
 
-Transaction History
-Retrieve and export account statements.
+- ✅ **Transaction History**
+  Retrieve and export account statements.
 
-Roles & Permissions
-Define roles (e.g., USER, ADMIN) and restrict endpoint access accordingly.
+- ✅ **Roles & Permissions**
+  Define roles (e.g., USER, ADMIN) and restrict endpoint access accordingly.
 
-API Documentation
+A- ✅ **PI Documentation**
 Easily explore REST endpoints using Swagger UI.
 
-## Tech Stack
+## 🧱 Tech Stack
 
-Layer Technology
-Backend Spring Boot
-Build Tool Maven
-Database MySQL
-Security Spring Security, JWT
-API Docs Swagger
-Containerization Docker, Docker Compose
+| Layer            | Technology             |
+|------------------|------------------------|
+| Backend          | Spring Boot            |
+| Build Tool       | Maven                  |
+| Database         | MySQL                  |
+| Security         | Spring Security        |
+| Email Service    | JavaMailSender         |
+| API Docs         | Swagger , OpenAPI      |
+| Containerization | Docker, Docker Compose |
 
 ## 🚀 How to Run
 
